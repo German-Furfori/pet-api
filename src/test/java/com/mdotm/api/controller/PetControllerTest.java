@@ -85,4 +85,16 @@ public class PetControllerTest extends ApiApplicationTests {
                 .andExpect(jsonPath("$.age").value(3))
                 .andExpect(jsonPath("$.ownerName").value("Helen Schneider"));
     }
+
+    @Test
+    @SneakyThrows
+    void findPetById_withInvalidId_returnNotFound() {
+        mockMvc
+                .perform(get(pathPets.concat(pathGetById), defaultId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").exists())
+                .andExpect(jsonPath("$.description").exists())
+                .andExpect(jsonPath("$.code").value("404 NOT_FOUND"))
+                .andExpect(jsonPath("$.description").value("Pet with id 1 not found"));
+    }
 }
