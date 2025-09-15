@@ -9,4 +9,5 @@ public interface PetService {
     PetPageResponseDto findAll(Pageable pageable);
     PetResponseDto findById(Long id);
     PetResponseDto createPet(PetRequestDto petRequest);
+    PetResponseDto updatePet(Long id, PetRequestDto petRequest);
 }

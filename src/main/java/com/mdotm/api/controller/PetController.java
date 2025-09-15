@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,6 +50,15 @@ public class PetController {
         log.info("[PetController] createPet request: [{}]", petRequest);
         PetResponseDto petResponse = petService.createPet(petRequest);
         log.info("[PetController] createPet response: [{}]", petResponse);
+        return petResponse;
+    }
+
+    @PatchMapping(path = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE})
+    @ResponseStatus(value = HttpStatus.OK)
+    public PetResponseDto updatePet(@PathVariable Long id, @RequestBody PetRequestDto petRequest) {
+        log.info("[PetController] updatePet request: [{}], id: [{}]", petRequest, id);
+        PetResponseDto petResponse = petService.updatePet(id, petRequest);
+        log.info("[PetController] updatePet response: [{}]", petResponse);
         return petResponse;
     }
 }
