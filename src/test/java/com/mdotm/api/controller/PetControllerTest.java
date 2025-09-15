@@ -165,4 +165,37 @@ public class PetControllerTest extends ApiApplicationTests {
         assertTrue(this.verifyNumberInPetsTable("age", 4L));
         assertTrue(this.verifyStringInPetsTable("owner_name", "Lucy Wright"));
     }
+
+    @Test
+    @SneakyThrows
+    void updatePet_withPartialInvalidBody_returnUpdatedPet() {
+        this.generateRandomPetsInDB();
+
+        String bodyRequest = getContentFromFile("request/pet_withInvalidBody.json");
+
+        mockMvc
+                .perform(patch(pathPets.concat(pathId), defaultId)
+                        .content(bodyRequest)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Luna"))
+                .andExpect(jsonPath("$.species").value("Dog"))
+                .andExpect(jsonPath("$.age").value(3))
+                .andExpect(jsonPath("$.ownerName").value("Lucy Wright"));
+    }
+
+    @Test
+    @SneakyThrows
+    void updatePet_withInvalidId_returnNotFound() {
+        String bodyRequest = getContentFromFile("request/pet_withValidBody.json");
+
+        mockMvc
+                .perform(patch(pathPets.concat(pathId), defaultId)
+                        .content(bodyRequest)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errors[0].code").value("404 NOT_FOUND"))
+                .andExpect(jsonPath("$.errors[0].description").value("Pet with id 1 not found"));
+    }
 }
