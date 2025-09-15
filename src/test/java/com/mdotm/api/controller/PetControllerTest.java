@@ -40,4 +40,22 @@ public class PetControllerTest extends ApiApplicationTests {
                 .andExpect(jsonPath("$.size").value("4"))
                 .andExpect(jsonPath("$.total").value("2"));
     }
+
+    @Test
+    @SneakyThrows
+    void findAllPets_withoutData_returnPage() {
+        mockMvc
+                .perform(get(pathPets)
+                        .param("page", defaultPage)
+                        .param("size", defaultSize))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").exists())
+                .andExpect(jsonPath("$.page").exists())
+                .andExpect(jsonPath("$.size").exists())
+                .andExpect(jsonPath("$.total").exists())
+                .andExpect(jsonPath("$.content", hasSize(0)))
+                .andExpect(jsonPath("$.page").value("0"))
+                .andExpect(jsonPath("$.size").value("4"))
+                .andExpect(jsonPath("$.total").value("0"));
+    }
 }
