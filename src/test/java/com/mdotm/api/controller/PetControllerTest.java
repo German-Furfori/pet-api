@@ -3,10 +3,15 @@ package com.mdotm.api.controller;
 import com.mdotm.api.ApiApplicationTests;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
+import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -81,5 +86,32 @@ public class PetControllerTest extends ApiApplicationTests {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errors[0].code").value("404 NOT_FOUND"))
                 .andExpect(jsonPath("$.errors[0].description").value("Pet with id 1 not found"));
+    }
+
+    @Test
+    @SneakyThrows
+    void createPet_withValidBody_returnCreatedPet() {
+        String bodyRequest = getContentFromFile("request/createPet_withValidBody.json");
+
+        int rowCountPets = JdbcTestUtils.countRowsInTable(jdbcTemplate, "pets");
+
+        mockMvc
+                .perform(post(pathPets)
+                        .content(bodyRequest)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Simba"))
+                .andExpect(jsonPath("$.species").value("Rabbit"))
+                .andExpect(jsonPath("$.age").value(4))
+                .andExpect(jsonPath("$.ownerName").value("Lucy Wright"));
+
+        assertEquals(rowCountPets + 1,  JdbcTestUtils.countRowsInTable(jdbcTemplate, "pets"));
+
+        assertTrue(this.verifyNumberInPetsTable("id", 1L));
+        assertTrue(this.verifyStringInPetsTable("name", "Simba"));
+        assertTrue(this.verifyStringInPetsTable("species", "Rabbit"));
+        assertTrue(this.verifyNumberInPetsTable("age", 4L));
+        assertTrue(this.verifyStringInPetsTable("owner_name", "Lucy Wright"));
     }
 }

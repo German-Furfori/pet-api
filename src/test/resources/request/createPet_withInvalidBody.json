@@ -1,6 +1,6 @@
 {
-  "name": "Simba",
-  "species": "Rabbit",
-  "age": 4,
+  "name": null,
+  "species": "",
+  "age": -4,
   "ownerName": "Lucy Wright"
 }
