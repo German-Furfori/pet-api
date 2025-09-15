@@ -43,6 +43,8 @@ public class PetServiceImpl implements PetService {
 
     @Override
     public PetResponseDto createPet(PetRequestDto petRequest) {
-        return null;
+        Pet pet = petMapper.petRequestToPet(petRequest);
+        petRepository.save(pet);
+        return petMapper.petToPetResponseDto(pet);
     }
 }
