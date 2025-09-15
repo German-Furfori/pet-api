@@ -9,4 +9,6 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface PetMapper {
     List<PetResponseDto> petPageToPetResponseDtoPage(Page<Pet> petPage);
+
+    PetResponseDto petToPetResponseDto(Pet pet);
 }
