@@ -36,8 +36,7 @@ public class PetServiceImpl implements PetService {
 
     @Override
     public PetResponseDto findById(Long id) {
-        Pet pet = petRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException(String.format(NON_EXISTING_PET, id)));
+        Pet pet = this.getPetById(id);
         return petMapper.petToPetResponseDto(pet);
     }
 
@@ -46,5 +45,18 @@ public class PetServiceImpl implements PetService {
         Pet pet = petMapper.petRequestToPet(petRequest);
         petRepository.save(pet);
         return petMapper.petToPetResponseDto(pet);
+    }
+
+    @Override
+    public PetResponseDto updatePet(Long id, PetRequestDto petRequest) {
+        Pet pet = this.getPetById(id);
+        petMapper.updatePetWithPetRequest(petRequest, pet);
+        petRepository.save(pet);
+        return petMapper.petToPetResponseDto(pet);
+    }
+
+    private Pet getPetById(Long id) {
+        return petRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException(String.format(NON_EXISTING_PET, id)));
     }
 }
