@@ -92,9 +92,9 @@ public class PetControllerTest extends ApiApplicationTests {
         mockMvc
                 .perform(get(pathPets.concat(pathGetById), defaultId))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").exists())
-                .andExpect(jsonPath("$.description").exists())
-                .andExpect(jsonPath("$.code").value("404 NOT_FOUND"))
-                .andExpect(jsonPath("$.description").value("Pet with id 1 not found"));
+                .andExpect(jsonPath("$.errors[0].code").exists())
+                .andExpect(jsonPath("$.errors[0].description").exists())
+                .andExpect(jsonPath("$.errors[0].code").value("404 NOT_FOUND"))
+                .andExpect(jsonPath("$.errors[0].description").value("Pet with id 1 not found"));
     }
 }
