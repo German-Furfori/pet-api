@@ -55,6 +55,12 @@ public class PetServiceImpl implements PetService {
         return petMapper.petToPetResponseDto(pet);
     }
 
+    @Override
+    public void deleteById(Long id) {
+        Pet pet = this.getPetById(id);
+        petRepository.delete(pet);
+    }
+
     private Pet getPetById(Long id) {
         return petRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException(String.format(NON_EXISTING_PET, id)));
