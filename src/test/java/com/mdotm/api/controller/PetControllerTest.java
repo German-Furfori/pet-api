@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -194,6 +195,32 @@ public class PetControllerTest extends ApiApplicationTests {
                 .perform(patch(pathPets.concat(pathId), defaultId)
                         .content(bodyRequest)
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errors[0].code").value("404 NOT_FOUND"))
+                .andExpect(jsonPath("$.errors[0].description").value("Pet with id 1 not found"));
+    }
+
+    @Test
+    @SneakyThrows
+    void deletePetById_withValidId_returnNoContent() {
+        this.generateRandomPetsInDB();
+
+        int rowCountPets = JdbcTestUtils.countRowsInTable(jdbcTemplate, "pets");
+
+        mockMvc
+                .perform(delete(pathPets.concat(pathId), defaultId))
+                .andExpect(status().isNoContent());
+
+        this.entityManager.flush();
+
+        assertEquals(rowCountPets - 1,  JdbcTestUtils.countRowsInTable(jdbcTemplate, "pets"));
+    }
+
+    @Test
+    @SneakyThrows
+    void deletePetById_withInvalidId_returnNotFound() {
+        mockMvc
+                .perform(delete(pathPets.concat(pathId), defaultId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errors[0].code").value("404 NOT_FOUND"))
                 .andExpect(jsonPath("$.errors[0].description").value("Pet with id 1 not found"));

@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -60,5 +61,13 @@ public class PetController {
         PetResponseDto petResponse = petService.updatePet(id, petRequest);
         log.info("[PetController] updatePet response: [{}]", petResponse);
         return petResponse;
+    }
+
+    @DeleteMapping(path = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE})
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void deletePetById(@PathVariable Long id) {
+        log.info("[PetController] deletePetById request: [{}]", id);
+        petService.deletePetById(id);
+        log.info("[PetController] deletePetById finished");
     }
 }

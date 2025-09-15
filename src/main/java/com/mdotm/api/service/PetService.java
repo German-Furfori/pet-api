@@ -10,4 +10,5 @@ public interface PetService {
     PetResponseDto findById(Long id);
     PetResponseDto createPet(PetRequestDto petRequest);
     PetResponseDto updatePet(Long id, PetRequestDto petRequest);
+    void deletePetById(Long id);
 }
