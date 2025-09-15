@@ -65,9 +65,9 @@ public class PetController {
 
     @DeleteMapping(path = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable Long id) {
+    public void deletePetById(@PathVariable Long id) {
         log.info("[PetController] deleteById request: [{}]", id);
-        petService.deleteById(id);
+        petService.deletePetById(id);
         log.info("[PetController] deleteById finished");
     }
 }
