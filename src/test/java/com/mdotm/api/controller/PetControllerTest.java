@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -113,5 +114,23 @@ public class PetControllerTest extends ApiApplicationTests {
         assertTrue(this.verifyStringInPetsTable("species", "Rabbit"));
         assertTrue(this.verifyNumberInPetsTable("age", 4L));
         assertTrue(this.verifyStringInPetsTable("owner_name", "Lucy Wright"));
+    }
+
+    @Test
+    @SneakyThrows
+    void createPet_withInvalidBody_returnBadRequest() {
+        String bodyRequest = getContentFromFile("request/createPet_withInvalidBody.json");
+
+        mockMvc
+                .perform(post(pathPets)
+                        .content(bodyRequest)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors", hasSize(3)))
+                .andExpect(jsonPath("$.errors[*].code", containsInAnyOrder("400 BAD_REQUEST", "400 BAD_REQUEST", "400 BAD_REQUEST")))
+                .andExpect(jsonPath("$.errors[*].description", containsInAnyOrder(
+                        "The species field is null or empty",
+                        "The age field must be greater than or equal to 0",
+                        "The name field is null or empty")));
     }
 }
