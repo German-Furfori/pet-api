@@ -11,8 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
+import java.util.NoSuchElementException;
+
+import static com.mdotm.api.constant.ErrorMessages.NON_EXISTING_PET;
 
 @Slf4j
 @Service
@@ -29,5 +31,12 @@ public class PetServiceImpl implements PetService {
                 petPage.getPageable().getPageNumber(),
                 petPage.getPageable().getPageSize(),
                 petPage.getTotalElements());
+    }
+
+    @Override
+    public PetResponseDto findById(Long id) {
+        Pet pet = petRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException(String.format(NON_EXISTING_PET, id)));
+        return petMapper.petToPetResponseDto(pet);
     }
 }
