@@ -28,10 +28,6 @@ public class PetControllerTest extends ApiApplicationTests {
                         .param("page", defaultPage)
                         .param("size", defaultSize))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").exists())
-                .andExpect(jsonPath("$.page").exists())
-                .andExpect(jsonPath("$.size").exists())
-                .andExpect(jsonPath("$.total").exists())
                 .andExpect(jsonPath("$.content", hasSize(2)))
                 .andExpect(jsonPath("$.content[0].id").value(1))
                 .andExpect(jsonPath("$.content[0].name").value("Luna"))
@@ -56,10 +52,6 @@ public class PetControllerTest extends ApiApplicationTests {
                         .param("page", defaultPage)
                         .param("size", defaultSize))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").exists())
-                .andExpect(jsonPath("$.page").exists())
-                .andExpect(jsonPath("$.size").exists())
-                .andExpect(jsonPath("$.total").exists())
                 .andExpect(jsonPath("$.content", hasSize(0)))
                 .andExpect(jsonPath("$.page").value("0"))
                 .andExpect(jsonPath("$.size").value("4"))
@@ -74,11 +66,6 @@ public class PetControllerTest extends ApiApplicationTests {
         mockMvc
                 .perform(get(pathPets.concat(pathGetById), defaultId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.name").exists())
-                .andExpect(jsonPath("$.species").exists())
-                .andExpect(jsonPath("$.age").exists())
-                .andExpect(jsonPath("$.ownerName").exists())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Luna"))
                 .andExpect(jsonPath("$.species").value("Dog"))
@@ -92,8 +79,6 @@ public class PetControllerTest extends ApiApplicationTests {
         mockMvc
                 .perform(get(pathPets.concat(pathGetById), defaultId))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errors[0].code").exists())
-                .andExpect(jsonPath("$.errors[0].description").exists())
                 .andExpect(jsonPath("$.errors[0].code").value("404 NOT_FOUND"))
                 .andExpect(jsonPath("$.errors[0].description").value("Pet with id 1 not found"));
     }
