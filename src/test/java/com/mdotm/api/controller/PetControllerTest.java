@@ -3,10 +3,16 @@ package com.mdotm.api.controller;
 import com.mdotm.api.ApiApplicationTests;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
+import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -28,10 +34,6 @@ public class PetControllerTest extends ApiApplicationTests {
                         .param("page", defaultPage)
                         .param("size", defaultSize))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").exists())
-                .andExpect(jsonPath("$.page").exists())
-                .andExpect(jsonPath("$.size").exists())
-                .andExpect(jsonPath("$.total").exists())
                 .andExpect(jsonPath("$.content", hasSize(2)))
                 .andExpect(jsonPath("$.content[0].id").value(1))
                 .andExpect(jsonPath("$.content[0].name").value("Luna"))
@@ -56,10 +58,6 @@ public class PetControllerTest extends ApiApplicationTests {
                         .param("page", defaultPage)
                         .param("size", defaultSize))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").exists())
-                .andExpect(jsonPath("$.page").exists())
-                .andExpect(jsonPath("$.size").exists())
-                .andExpect(jsonPath("$.total").exists())
                 .andExpect(jsonPath("$.content", hasSize(0)))
                 .andExpect(jsonPath("$.page").value("0"))
                 .andExpect(jsonPath("$.size").value("4"))
@@ -74,11 +72,6 @@ public class PetControllerTest extends ApiApplicationTests {
         mockMvc
                 .perform(get(pathPets.concat(pathGetById), defaultId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.name").exists())
-                .andExpect(jsonPath("$.species").exists())
-                .andExpect(jsonPath("$.age").exists())
-                .andExpect(jsonPath("$.ownerName").exists())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Luna"))
                 .andExpect(jsonPath("$.species").value("Dog"))
@@ -92,9 +85,52 @@ public class PetControllerTest extends ApiApplicationTests {
         mockMvc
                 .perform(get(pathPets.concat(pathGetById), defaultId))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").exists())
-                .andExpect(jsonPath("$.description").exists())
-                .andExpect(jsonPath("$.code").value("404 NOT_FOUND"))
-                .andExpect(jsonPath("$.description").value("Pet with id 1 not found"));
+                .andExpect(jsonPath("$.errors[0].code").value("404 NOT_FOUND"))
+                .andExpect(jsonPath("$.errors[0].description").value("Pet with id 1 not found"));
+    }
+
+    @Test
+    @SneakyThrows
+    void createPet_withValidBody_returnCreatedPet() {
+        String bodyRequest = getContentFromFile("request/createPet_withValidBody.json");
+
+        int rowCountPets = JdbcTestUtils.countRowsInTable(jdbcTemplate, "pets");
+
+        mockMvc
+                .perform(post(pathPets)
+                        .content(bodyRequest)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Simba"))
+                .andExpect(jsonPath("$.species").value("Rabbit"))
+                .andExpect(jsonPath("$.age").value(4))
+                .andExpect(jsonPath("$.ownerName").value("Lucy Wright"));
+
+        assertEquals(rowCountPets + 1,  JdbcTestUtils.countRowsInTable(jdbcTemplate, "pets"));
+
+        assertTrue(this.verifyNumberInPetsTable("id", 1L));
+        assertTrue(this.verifyStringInPetsTable("name", "Simba"));
+        assertTrue(this.verifyStringInPetsTable("species", "Rabbit"));
+        assertTrue(this.verifyNumberInPetsTable("age", 4L));
+        assertTrue(this.verifyStringInPetsTable("owner_name", "Lucy Wright"));
+    }
+
+    @Test
+    @SneakyThrows
+    void createPet_withInvalidBody_returnBadRequest() {
+        String bodyRequest = getContentFromFile("request/createPet_withInvalidBody.json");
+
+        mockMvc
+                .perform(post(pathPets)
+                        .content(bodyRequest)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors", hasSize(3)))
+                .andExpect(jsonPath("$.errors[*].code", containsInAnyOrder("400 BAD_REQUEST", "400 BAD_REQUEST", "400 BAD_REQUEST")))
+                .andExpect(jsonPath("$.errors[*].description", containsInAnyOrder(
+                        "The species field is null or empty",
+                        "The age field must be greater than or equal to 0",
+                        "The name field is null or empty")));
     }
 }

@@ -1,6 +1,7 @@
 package com.mdotm.api.service.impl;
 
 import com.mdotm.api.dto.PetPageResponseDto;
+import com.mdotm.api.dto.PetRequestDto;
 import com.mdotm.api.dto.PetResponseDto;
 import com.mdotm.api.entity.Pet;
 import com.mdotm.api.mapper.PetMapper;
@@ -37,6 +38,13 @@ public class PetServiceImpl implements PetService {
     public PetResponseDto findById(Long id) {
         Pet pet = petRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException(String.format(NON_EXISTING_PET, id)));
+        return petMapper.petToPetResponseDto(pet);
+    }
+
+    @Override
+    public PetResponseDto createPet(PetRequestDto petRequest) {
+        Pet pet = petMapper.petRequestToPet(petRequest);
+        petRepository.save(pet);
         return petMapper.petToPetResponseDto(pet);
     }
 }
